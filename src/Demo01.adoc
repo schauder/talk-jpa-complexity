@@ -1,0 +1,9 @@
+== Question 1
+
+Does `EntityManager.persist` save an entity to the database?
+
+
+1. Yes
+2. No
+3. It depends
+

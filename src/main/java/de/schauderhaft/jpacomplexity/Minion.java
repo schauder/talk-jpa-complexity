@@ -7,10 +7,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Version;
 
 @Entity
-class Person {
+class Minion {
 
 	@Id
-	@GeneratedValue(strategy= GenerationType.IDENTITY)
+	@GeneratedValue(strategy= GenerationType.SEQUENCE)
 	Long id;
 
 	String name;

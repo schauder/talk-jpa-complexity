@@ -1,0 +1,2 @@
+== Samples to demonstrate the Complexity of JPA
+
