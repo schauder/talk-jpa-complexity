@@ -1,2 +1,11 @@
-== Samples to demonstrate the Complexity of JPA
+= Samples to demonstrate the Complexity of JPA
+
+== Question 1
+
+Does `EntityManager.persist` save an entity to the database?
+
+
+1. Yes
+2. No
+3. It depends
 
