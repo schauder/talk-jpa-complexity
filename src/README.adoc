@@ -19,6 +19,7 @@ Does `EntityManager.find` load an entity from the database?
 == Question 3
 
 Does does a query load entities from the database?
+(No query cache)
 
 1. Yes
 2. No

@@ -1,7 +1,6 @@
 package de.schauderhaft.jpacomplexity;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -75,6 +74,7 @@ class JpaComplexityTests {
 					.describedAs("Entity does get loaded.")
 					.isEqualTo("Jens");
 		}
+
 		@Test
 		void loadUpdated() {
 
@@ -99,6 +99,7 @@ class JpaComplexityTests {
 			return jens.id;
 		}
 	}
+
 	@Nested
 	class Question3 {
 		@Test
@@ -106,7 +107,9 @@ class JpaComplexityTests {
 
 			Long id = setup();
 
-			jdbc.update("update minion set name = 'Mark' where id = :id", Map.of("id", id));
+			em.createQuery("update Minion set name = 'Mark' where id = :id")
+					.setParameter("id", id)
+					.executeUpdate();
 
 			Minion markOrJens = em.createQuery("select m from Minion m where name = 'Mark'", Minion.class).getSingleResult();
 
