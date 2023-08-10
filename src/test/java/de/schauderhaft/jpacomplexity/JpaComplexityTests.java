@@ -1,6 +1,8 @@
 package de.schauderhaft.jpacomplexity;
 
+import com.jayway.jsonpath.internal.function.numeric.Min;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -9,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static de.schauderhaft.jpacomplexity.DatabaseAssertions.*;
@@ -26,9 +30,20 @@ class JpaComplexityTests {
 	@Autowired
 	EntityManager em;
 
+	@Autowired
+	TransactionTemplate tx;
+
 	@Nested
 	@Transactional
 	class Question1 {
+
+		@BeforeEach
+		void before(){
+			jdbc.update("delete from clothing", Collections.emptyMap());
+			jdbc.update("delete from smurf", Collections.emptyMap());
+			jdbc.update("delete from minion", Collections.emptyMap());
+			jdbc.update("delete from person", Collections.emptyMap());
+		}
 		@Test
 		void saveMinion() {
 
@@ -109,7 +124,64 @@ class JpaComplexityTests {
 					.describedAs("Entity doesn't get reloaded")
 					.isEqualTo("Jens");
 		}
+	}
 
+	@Nested
+	class Question4 {
+
+		@Test
+		void droppingAllCloths() {
+
+			Smurf jokey = tx.execute(tx -> {
+
+				Smurf smurf = new Smurf();
+				smurf.name = "Bob";
+				smurf.clothing.add(new Clothing("shoes"));
+				smurf.clothing.add(new Clothing("pants"));
+				smurf.clothing.add(new Clothing("jacket"));
+
+				em.persist(smurf);
+				return smurf;
+			});
+
+			Long originalVersion = jokey.version;
+
+			Smurf nakedJokey = tx.execute(tx -> {
+				Smurf smurf = em.find(Smurf.class, jokey.id);
+				smurf.clothing.clear();
+				return smurf;
+			});
+
+			assertThat(nakedJokey.version).isNotEqualTo(originalVersion);
+		}
+
+		@Test
+		void transparentCloths() {
+
+			Smurf jokey = tx.execute(tx -> {
+
+				Smurf smurf = new Smurf();
+				smurf.name = "Bob";
+				smurf.clothing.add(new Clothing("shoes"));
+				smurf.clothing.add(new Clothing("pants"));
+				smurf.clothing.add(new Clothing("jacket"));
+
+				em.persist(smurf);
+				return smurf;
+			});
+
+			Long originalVersion = jokey.version;
+
+			Smurf nakedJokey = tx.execute(tx -> {
+				Smurf smurf = em.find(Smurf.class, jokey.id);
+				for (Clothing clothing : smurf.clothing) {
+					clothing.name = "transparent " + clothing.name;
+				}
+				return smurf;
+			});
+
+			assertThat(nakedJokey.version).isNotEqualTo(originalVersion);
+		}
 	}
 
 	private Long setup() {
