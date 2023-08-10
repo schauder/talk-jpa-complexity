@@ -4,8 +4,22 @@
 
 Does `EntityManager.persist` save an entity to the database?
 
+1. Yes
+2. No
+3. It depends
+
+== Question 2
+
+Does `EntityManager.find` load an entity from the database?
 
 1. Yes
 2. No
 3. It depends
 
+== Question 3
+
+Does does a query load entities from the database?
+
+1. Yes
+2. No
+3. It's complicated
