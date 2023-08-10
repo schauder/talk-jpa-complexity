@@ -17,7 +17,6 @@ import static de.schauderhaft.jpacomplexity.DatabaseAssertions.*;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-@Transactional
 class JpaComplexityTests {
 	Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -28,6 +27,7 @@ class JpaComplexityTests {
 	EntityManager em;
 
 	@Nested
+	@Transactional
 	class Question1 {
 		@Test
 		void saveMinion() {
@@ -61,6 +61,7 @@ class JpaComplexityTests {
 	}
 
 	@Nested
+	@Transactional
 	class Question2 {
 		@Test
 		void loadInserted() {
@@ -88,19 +89,10 @@ class JpaComplexityTests {
 					.describedAs("Entity doesn't get reloaded")
 					.isEqualTo("Jens");
 		}
-
-		private Long setup() {
-
-			Minion jens = new Minion();
-			jens.name = "Jens";
-
-			em.persist(jens);
-			em.flush();
-			return jens.id;
-		}
 	}
 
 	@Nested
+	@Transactional
 	class Question3 {
 		@Test
 		void queryUpdated() {
@@ -118,14 +110,15 @@ class JpaComplexityTests {
 					.isEqualTo("Jens");
 		}
 
-		private Long setup() {
+	}
 
-			Minion jens = new Minion();
-			jens.name = "Jens";
+	private Long setup() {
 
-			em.persist(jens);
-			em.flush();
-			return jens.id;
-		}
+		Minion jens = new Minion();
+		jens.name = "Jens";
+
+		em.persist(jens);
+		em.flush();
+		return jens.id;
 	}
 }
