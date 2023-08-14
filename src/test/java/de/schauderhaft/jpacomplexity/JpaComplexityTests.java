@@ -180,7 +180,7 @@ class JpaComplexityTests {
 				return smurf;
 			});
 
-			assertThat(nakedJokey.version).isNotEqualTo(originalVersion);
+			assertThat(nakedJokey.version).isEqualTo(originalVersion);
 		}
 	}
 
