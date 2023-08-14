@@ -28,7 +28,4 @@ Does does a query load entities from the database?
 == Question 4
 
 Given: An entity has a list of other entities and an optimistic locking version.
-
-=== Question 4a
-
 If you change, remove or delete a list item, does the version of the parent entity change?
