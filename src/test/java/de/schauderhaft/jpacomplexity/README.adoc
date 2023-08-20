@@ -1,0 +1,4 @@
+== The complexity of Spring Data JPA.
+
+This are the slides and code examples for my talk about the complexity of JPA, presented for the first time August 21st at SpringOne@VMwareExplore in Las Vegas.
+
