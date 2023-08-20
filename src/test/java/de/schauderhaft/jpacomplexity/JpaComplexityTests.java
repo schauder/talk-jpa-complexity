@@ -1,7 +1,7 @@
 package de.schauderhaft.jpacomplexity;
 
-import com.jayway.jsonpath.internal.function.numeric.Min;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import static de.schauderhaft.jpacomplexity.DatabaseAssertions.*;
@@ -33,17 +32,18 @@ class JpaComplexityTests {
 	@Autowired
 	TransactionTemplate tx;
 
+	@BeforeEach
+	void before() {
+		jdbc.update("delete from clothing", Collections.emptyMap());
+		jdbc.update("delete from smurf", Collections.emptyMap());
+		jdbc.update("delete from minion", Collections.emptyMap());
+		jdbc.update("delete from person", Collections.emptyMap());
+	}
+
 	@Nested
 	@Transactional
 	class Question1 {
 
-		@BeforeEach
-		void before(){
-			jdbc.update("delete from clothing", Collections.emptyMap());
-			jdbc.update("delete from smurf", Collections.emptyMap());
-			jdbc.update("delete from minion", Collections.emptyMap());
-			jdbc.update("delete from person", Collections.emptyMap());
-		}
 		@Test
 		void saveMinion() {
 
@@ -110,7 +110,7 @@ class JpaComplexityTests {
 	@Transactional
 	class Question3 {
 		@Test
-		void queryUpdated() {
+		void queryByNotUpdatedName() {
 
 			Long id = setup();
 
@@ -118,7 +118,23 @@ class JpaComplexityTests {
 					.setParameter("id", id)
 					.executeUpdate();
 
-			Minion markOrJens = em.createQuery("select m from Minion m where name = 'Mark'", Minion.class).getSingleResult();
+			assertThatThrownBy(
+					() -> em.createQuery("select m from Minion m where name = 'Jens'", Minion.class)
+							.getSingleResult()
+			).isInstanceOf(NoResultException.class);
+		}
+
+		@Test
+		void queryByUpdatedName() {
+
+			Long id = setup();
+
+			em.createQuery("update Minion set name = 'Mark' where id = :id")
+					.setParameter("id", id)
+					.executeUpdate();
+
+			Minion markOrJens = em.createQuery("select m from Minion m where name = 'Mark'", Minion.class)
+					.getSingleResult();
 
 			assertThat(markOrJens.name)
 					.describedAs("Entity doesn't get reloaded")
@@ -135,7 +151,7 @@ class JpaComplexityTests {
 			Smurf jokey = tx.execute(tx -> {
 
 				Smurf smurf = new Smurf();
-				smurf.name = "Bob";
+				smurf.name = "Jokey";
 				smurf.clothing.add(new Clothing("shoes"));
 				smurf.clothing.add(new Clothing("pants"));
 				smurf.clothing.add(new Clothing("jacket"));
@@ -152,7 +168,9 @@ class JpaComplexityTests {
 				return smurf;
 			});
 
-			assertThat(nakedJokey.version).isNotEqualTo(originalVersion);
+			assertThat(nakedJokey.version)
+					.describedAs("Yes the optimistic locking version gets updated")
+					.isNotEqualTo(originalVersion);
 		}
 
 		@Test
@@ -181,6 +199,9 @@ class JpaComplexityTests {
 			});
 
 			assertThat(nakedJokey.version).isEqualTo(originalVersion);
+
+			Smurf reloaded = tx.execute(tx -> em.find(Smurf.class, jokey.id));
+			assertThat(reloaded.version).isEqualTo(originalVersion);
 		}
 	}
 
