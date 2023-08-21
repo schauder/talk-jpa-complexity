@@ -55,8 +55,6 @@ class JpaComplexityTests {
 			with(jdbc).assertCountOf("minion")
 					.describedAs("Nothing saved in the database")
 					.isEqualTo(0);
-
-			log.info("Data is safe.");
 		}
 
 		@Test
@@ -70,8 +68,6 @@ class JpaComplexityTests {
 			with(jdbc).assertCountOf("person")
 					.describedAs("Of course, it is saved in the database.")
 					.isEqualTo(1);
-
-			log.info("Data is safe.");
 		}
 	}
 
@@ -80,7 +76,6 @@ class JpaComplexityTests {
 	class Question2 {
 		@Test
 		void loadInserted() {
-
 
 			jdbc.update("insert minion (id, name) values (23, 'Jens')", Collections.emptyMap());
 
@@ -163,6 +158,7 @@ class JpaComplexityTests {
 			Long originalVersion = jokey.version;
 
 			Smurf nakedJokey = tx.execute(tx -> {
+
 				Smurf smurf = em.find(Smurf.class, jokey.id);
 				smurf.clothing.clear();
 				return smurf;
