@@ -175,7 +175,7 @@ class JpaComplexityTests {
 			Smurf jokey = tx.execute(tx -> {
 
 				Smurf smurf = new Smurf();
-				smurf.name = "Bob";
+				smurf.name = "Jokey";
 				smurf.clothing.add(new Clothing("shoes"));
 				smurf.clothing.add(new Clothing("pants"));
 				smurf.clothing.add(new Clothing("jacket"));
